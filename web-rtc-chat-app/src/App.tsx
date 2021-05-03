@@ -27,16 +27,13 @@ function App() {
 
 	useEffect(() => {
 		navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then((stream) => {
-			console.log(1)
 			setStream(stream)
 			myVideo.current.srcObject = stream
 		})
 		socket.on("me", (id) => {
-			console.log(2)
 			setMe(id)
 		})
 		socket.on("callUser", (data) => {
-			console.log(3)
 			setReceivingCall(true)
 			setCaller(data.from)
 			setName(data.name)
@@ -45,14 +42,12 @@ function App() {
 	}, [])
 
 	const callUser = (id : any) => {
-		console.log(4)
 		const peer = new Peer({
 			initiator: true,
 			trickle: false,
 			stream: stream
 		})
 		peer.on("signal", (data : any) => {
-			console.log(5)
 			socket.emit("callUser", {
 				userToCall: id,
 				signalData: data,
@@ -61,11 +56,9 @@ function App() {
 			})
 		})
 		peer.on("stream", (stream) => {
-			console.log(6)
 			userVideo.current.srcObject = stream
 		})
 		socket.on("callAccepted", (signal : any) => {
-			console.log(7)
 			setCallAccepted(true)
 			peer.signal(signal)
 		})
@@ -73,7 +66,6 @@ function App() {
 	}
 
 	const answerCall =() =>  {
-		console.log(8)
 		setCallAccepted(true)
 		const peer = new Peer({
 			initiator: false,
@@ -81,20 +73,16 @@ function App() {
 			stream: stream
 		})
 		peer.on("signal", (data) => {
-			console.log(9)
 			socket.emit("answerCall", { signal: data, to: caller })
 		})
 		peer.on("stream", (stream) => {
-			console.log(10)
 			userVideo.current.srcObject = stream
 		})
-		console.log(11)
 		peer.signal(callerSignal)
 		connectionRef.current = peer
 	}
 
 	const leaveCall = () => {
-		console.log(12)
 		setCallEnded(true)
 		connectionRef.current.destroy()
 	}
